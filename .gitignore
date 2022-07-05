@@ -1,0 +1,15 @@
+*__pycache__*
+out/*
+src/out/*
+.idea/*
+*swp
+*~
+.DS_Store
+config/*
+cache/*
+www/mapbox/data/*
+www/mapbox/conf/*
+conf/mapBoxConfig.py
+conf/diffixConfig.py
+*.pickle
+data/*

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang='en-US'>
+<head>
+    <meta charset='utf-8'/>
+
+    <link rel="icon" type="image/png"
+          href="https://www.mpi-sws.org/wp-content/themes/mpi-sws/assets/images/favicon/favicon-32x32.png?ver=1.7.0"/>
+    <link rel="icon" type="image/png" sizes="192x192"
+          href="https://www.mpi-sws.org/wp-content/themes/mpi-sws/assets/images/favicon/android-icon-192x192.png?ver=1.7.0"/>
+    <link rel="icon" type="image/png" sizes="32x32"
+          href="https://www.mpi-sws.org/wp-content/themes/mpi-sws/assets/images/favicon/favicon-32x32.png?ver=1.7.0"/>
+    <link rel="icon" type="image/png" sizes="96x96"
+          href="https://www.mpi-sws.org/wp-content/themes/mpi-sws/assets/images/favicon/favicon-96x96.png?ver=1.7.0"/>
+    <link rel="icon" type="image/png" sizes="16x16"
+          href="https://www.mpi-sws.org/wp-content/themes/mpi-sws/assets/images/favicon/favicon-16x16.png?ver=1.7.0"/>
+    <link rel="apple-touch-icon" sizes="57x57"
+          href="https://www.mpi-sws.org/wp-content/themes/mpi-sws/assets/images/favicon/apple-icon-57x57.png?ver=1.7.0"/>
+    <link rel="apple-touch-icon" sizes="60x60"
+          href="https://www.mpi-sws.org/wp-content/themes/mpi-sws/assets/images/favicon/apple-icon-60x60.png?ver=1.7.0"/>
+    <link rel="apple-touch-icon" sizes="72x72"
+          href="https://www.mpi-sws.org/wp-content/themes/mpi-sws/assets/images/favicon/apple-icon-72x72.png?ver=1.7.0"/>
+    <link rel="apple-touch-icon" sizes="76x76"
+          href="https://www.mpi-sws.org/wp-content/themes/mpi-sws/assets/images/favicon/apple-icon-76x76.png?ver=1.7.0"/>
+    <link rel="apple-touch-icon" sizes="114x114"
+          href="https://www.mpi-sws.org/wp-content/themes/mpi-sws/assets/images/favicon/apple-icon-114x114.png?ver=1.7.0"/>
+    <link rel="apple-touch-icon" sizes="120x120"
+          href="https://www.mpi-sws.org/wp-content/themes/mpi-sws/assets/images/favicon/apple-icon-120x120.png?ver=1.7.0"/>
+    <link rel="apple-touch-icon" sizes="144x144"
+          href="https://www.mpi-sws.org/wp-content/themes/mpi-sws/assets/images/favicon/apple-icon-144x144.png?ver=1.7.0"/>
+    <link rel="apple-touch-icon" sizes="152x152"
+          href="https://www.mpi-sws.org/wp-content/themes/mpi-sws/assets/images/favicon/apple-icon-152x152.png?ver=1.7.0"/>
+    <link rel="apple-touch-icon" sizes="180x180"
+          href="https://www.mpi-sws.org/wp-content/themes/mpi-sws/assets/images/favicon/apple-icon-180x180.png?ver=1.7.0"/>
+
+    <title>Loading ...</title>
+
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no'/>
+    <script type="text/javascript" src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.10.0/mapbox-gl.js'></script>
+    <link rel='stylesheet' type="text/css" href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.10.0/mapbox-gl.css'/>
+    <link rel="stylesheet" type="text/css" href="heatmap_conf.css"/>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css" type="text/css">
+</head>
+<body>
+<div id="comparison-container">
+    <div id="map2"></div>
+    <div id="map"></div>
+</div>
+<div class="map-overlay-top">
+    <div class="map-overlay-inner">
+        <h2 id="title">NYC taxi trips</h2>
+        <p>
+            <input type="radio" id="pdRadioFareAmounts" value="fareAmounts" name="pdRadio" checked="true">
+            <label>Fare [$]</label>
+            <br/>
+            <input type="radio" id="pdRadioTripSpeed" value="tripSpeed" name="pdRadio">
+            <label>Speed [mph]</label>
+        </p>
+        <p>
+            <label id="time" for="tSlider">Loading ...</label>
+            <input class="slider" id="tSlider" type="range" min="0" max="20" step="4" value="8"/>
+        </p>
+        <p>
+            <table class="legend" id="legend"></table>
+        </p>
+    </div>
+</div>
+<div class="map-overlay-bottom">
+<a href="https://imprint.mpi-klsb.mpg.de/sws/people/cmickler">Imprint</a> / <a
+      href="https://data-protection.mpi-klsb.mpg.de/sws/people/cmickler">Data Protection</a>
+</div>
+<script type="text/javascript" src="heatmap_conf.js"></script>
+</body>
+</html>
