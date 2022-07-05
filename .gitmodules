@@ -1,0 +1,3 @@
+[submodule "pg_diffix"]
+	path = pg_diffix
+	url = https://github.com/diffix/pg_diffix
