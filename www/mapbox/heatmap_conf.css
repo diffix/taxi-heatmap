@@ -78,7 +78,7 @@ body {
     right: 2px;
     bottom: 50px;
     z-index: 1;
-    rotate: 90deg;
+    transform: rotate(90deg);
 }
 
 .map-overlay-caption-right {
@@ -88,7 +88,7 @@ body {
     left: -20px;
     bottom: 50px;
     z-index: 1;
-    rotate: 90deg;
+    transform: rotate(90deg);
 }
 
 .slider {
