@@ -166,7 +166,8 @@ function prepareMap() {
 function addDataSet(mapElement, dataSetConf, minGeoWidth, maxGeoWidth) {
     const geoWidth = parseFloat(dataSetConf.geoWidth);
     const zoomOffset = Math.log2(geoWidth / 0.0001).toFixed(1); // ~2-5
-    const minZoomHeatmap = (geoWidth == maxGeoWidth ? 10 : 17.5 - zoomOffset);
+    const minZoomHeatmapMaxGeoWidth = 0
+    const minZoomHeatmap = (geoWidth == maxGeoWidth ? minZoomHeatmapMaxGeoWidth : 17.5 - zoomOffset);
     const minZoom = 17.5 - zoomOffset;
     const maxZoom = (geoWidth == minGeoWidth) ? 20 : 17.5 - zoomOffset + 1;
     
@@ -204,7 +205,7 @@ function addDataSet(mapElement, dataSetConf, minGeoWidth, maxGeoWidth) {
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                10, 0,
+                minZoomHeatmapMaxGeoWidth, 0,
                 11, 0.8,
                 15.5, 0.8,
                 16.5, 0.6
@@ -265,7 +266,7 @@ function addDataSet(mapElement, dataSetConf, minGeoWidth, maxGeoWidth) {
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                10, 0,
+                minZoomHeatmapMaxGeoWidth, 0,
                 11, 0.8,
                 15.5, 0.8,
                 16.5, 0.6
