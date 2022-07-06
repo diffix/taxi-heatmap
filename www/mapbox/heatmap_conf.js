@@ -89,7 +89,6 @@ function initializePage(parsed) {
         prepareMap();
         updateFilter();
         updateDataSet();
-        document.title = conf.title;
         document
             .getElementById('tSlider')
             .addEventListener('input', function () {
@@ -141,7 +140,7 @@ function initializePage(parsed) {
     rawCaption.className = 'map-overlay-caption-left'
     const anonymizedCaption = document.createElement('div')
     const anonymizedCaptionContent = document.createElement('h2')
-    anonymizedCaptionContent.textContent = "Anonymized"
+    anonymizedCaptionContent.innerHTML = "Anonymized with <a href=\"https://open-diffix.org\" target=\"_blank\" rel=\"noopener noreferrer\">Diffix</a>"
     anonymizedCaption.appendChild(anonymizedCaptionContent)
     anonymizedCaption.className = 'map-overlay-caption-right'
 
