@@ -55,48 +55,12 @@ def _putBucket(bucketsByLatlon, bucket):
     bucketsByLatlon[(bucket.lat, bucket.lon, bucket.hourOfDay)] = bucket.fareAmounts
 
 
-def _appendParentBucket(parentBucket, lonlatRange, buckets, bucketsByLatlon, fillWithSplitBuckets=False):
-
+def _appendParentBucket(parentBucket, lonlatRange, buckets, bucketsByLatlon):
     noChild = not _hasChild(parentBucket, lonlatRange, bucketsByLatlon)
     if noChild:
         # at this level, the parent has no children whatsoever - we plant the parent and we're done
         buckets.append(parentBucket)
         _putBucket(bucketsByLatlon, parentBucket)
-    elif fillWithSplitBuckets:
-        # parentBuckets might include "grandparents" of the current generation. In such cases, we still might use the intermediate
-        # generations, in case where current generation doesn't appear in the intermediate generation level tiles.
-        if parentBucket.lonlatRange > lonlatRange * 2:
-            # before we use the children from the current level, let's try an intermediate level
-            # First, split the parent into immediate children:
-            immediateChildLonlatRange = parentBucket.lonlatRange / 2
-            immediateChildren = [_copyAndSetLonlat(parentBucket, lat, lon, immediateChildLonlatRange) for lat, lon in
-                                [(parentBucket.lat, parentBucket.lon),
-                                (parentBucket.lat + immediateChildLonlatRange, parentBucket.lon),
-                                (parentBucket.lat, parentBucket.lon + immediateChildLonlatRange),
-                                (parentBucket.lat + immediateChildLonlatRange, parentBucket.lon + immediateChildLonlatRange)]]
-            for immediateChild in immediateChildren:
-                _appendParentBucket(immediateChild, lonlatRange, buckets, bucketsByLatlon)
-        else:
-            # Finally we handle at the level of the "finest" ancestors.
-            # Handle the special case, where the child that is there is just exactly the same as we're about to fill with.
-            # In such case, we prefer to not fill with the parent bucket data, concluding that the parent data is just coming from
-            # this single child in 100%
-            # NOTE that this only happens in the raw, non-anonymized data. In anonymized data we have noise dependant on the resolution
-            # of generalization, so it's unlikely to get a child value exact same as parent's.
-            noDistinctChild = not _hasDistinctChild(parentBucket, lonlatRange, bucketsByLatlon)
-            if noDistinctChild:
-                # leave things as they are
-                pass
-            else:
-                # fill the missing buckets with parent data
-                for childLat in _lonlatSteps(parentBucket.lat, parentBucket.lonlatRange, lonlatRange):
-                    for childLon in _lonlatSteps(parentBucket.lon, parentBucket.lonlatRange, lonlatRange):
-                        if (childLat, childLon, parentBucket.hourOfDay) not in bucketsByLatlon:
-                            parentBucketCopy = _copyAndSetLonlat(parentBucket, childLat, childLon, lonlatRange)
-                            buckets.append(parentBucketCopy)
-                            _putBucket(bucketsByLatlon, parentBucketCopy)
-    else:
-        pass
 
 
 class MapBoxDiffixAccess:
