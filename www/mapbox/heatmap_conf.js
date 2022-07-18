@@ -7,7 +7,7 @@ function filterBy(hourOfDay) {
     let filters = ['==', 'hourOfDay', hourOfDay];
 
     for (dataSetConf of conf.dataSets) {
-        const mapElement = dataSetConf.isRaw ? map2 : map
+        const mapElement = dataSetConf.isRaw ? rawMap : map
         mapElement.setFilter(dataSetConf.name + '-heatRectangles-fareAmounts', filters);
         mapElement.setFilter(dataSetConf.name + '-heatRectangles-tripSpeed', filters);
         mapElement.setFilter(dataSetConf.name + '-values-fareAmounts', filters);
@@ -35,7 +35,7 @@ function updateDataSet() {
         const layerSuffixes = ['heatRectangles-fareAmounts', 'heatRectangles-tripSpeed',
                                'values-fareAmounts', 'values-tripSpeed',
                                'rectangles' ]
-        const mapElement = dataSetConf.isRaw ? map2 : map
+        const mapElement = dataSetConf.isRaw ? rawMap : map
         layerSuffixes.forEach((layerSuffix) => {
             mapElement.setLayoutProperty(dataSetConf.name + '-' + layerSuffix, 'visibility', 'none')
         });
@@ -79,13 +79,13 @@ function initializePage(parsed) {
         center: startCenter,
         zoom: startZoom
     });
-    map2 = new mapboxgl.Map({
-        container: 'map2',
+    rawMap = new mapboxgl.Map({
+        container: 'rawMap',
         style: mapboxStyleUrl,
         center: startCenter,
         zoom: startZoom
     });
-    map2.on('load', function () {
+    rawMap.on('load', function () {
         prepareMap();
         updateFilter();
         updateDataSet();
@@ -101,13 +101,13 @@ function initializePage(parsed) {
             }));
     });
     const container = '#comparison-container';
-    // FIXME swapped because we want anonymous on the right. Rename things and fix this
-    new mapboxgl.Compare(map2, map, container, {});
+
+    new mapboxgl.Compare(rawMap, map, container, {});
 
     // This adds the +/- zoom thingy. Adding in both maps, to not have to figure out how to block the slider from
     // running over it.
     map.addControl(new mapboxgl.NavigationControl());
-    map2.addControl(new mapboxgl.NavigationControl());
+    rawMap.addControl(new mapboxgl.NavigationControl());
 
     const legend = document.getElementById('legend');
     const descriptions = ['High', 'Average', 'Low'].reverse()
@@ -135,12 +135,12 @@ function initializePage(parsed) {
 
     const rawCaption = document.createElement('div')
     const rawCaptionContent = document.createElement('h2')
-    rawCaptionContent.textContent = "Raw"
+    rawCaptionContent.textContent = "Original"
     rawCaption.appendChild(rawCaptionContent)
     rawCaption.className = 'map-overlay-caption-left'
     const anonymizedCaption = document.createElement('div')
     const anonymizedCaptionContent = document.createElement('h2')
-    anonymizedCaptionContent.innerHTML = "Anonymized with <a href=\"https://open-diffix.org\" target=\"_blank\" rel=\"noopener noreferrer\">Diffix</a>"
+    anonymizedCaptionContent.innerHTML = "Anonymized with <a href=\"https://open-diffix.org\" target=\"_blank\" rel=\"noopener noreferrer\">Diffix Fir</a>"
     anonymizedCaption.appendChild(anonymizedCaptionContent)
     anonymizedCaption.className = 'map-overlay-caption-right'
 
@@ -155,7 +155,7 @@ function prepareMap() {
     const minGeoWidth = conf.dataSets[conf.dataSets.length - 1].geoWidth;
     for (dataSetConf of conf.dataSets) {
         if (dataSetConf.isRaw) {
-            addDataSet(map2, dataSetConf, minGeoWidth, maxGeoWidth)
+            addDataSet(rawMap, dataSetConf, minGeoWidth, maxGeoWidth)
         } else {
             addDataSet(map, dataSetConf, minGeoWidth, maxGeoWidth)
         }
@@ -330,7 +330,7 @@ function addDataSet(mapElement, dataSetConf, minGeoWidth, maxGeoWidth) {
 const urlParams = new URLSearchParams(window.location.search);
 const initialDataSet = urlParams.has('ds') ? parseInt(urlParams.get('ds'), 10) : 0;
 let map = null
-let map2 = null
+let rawMap = null
 let conf = null;
 
 fetch('conf/taxi-heatmap.json')

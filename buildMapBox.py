@@ -25,7 +25,7 @@ TlDr;
 -----
 1. Provision conf/diffixConfig.py and conf/mapBoxConfig.py
 2. Put `trip_data_1.csv` and `trip_fare_1.csv` from https://databank.illinois.edu/datasets/IDB-9610843 under `data` subdir in the repo root
-3. Build and run the pg_diffix docker image using (modify your path to the `data` subdir)
+3. Build and run the pg_diffix docker image using: (modify your path to the `data` subdir)
 ```
 make taxi-heatmap-image
 docker run --rm --name pg_diffix_taxi_heatmap -e POSTGRES_PASSWORD=postgres -p 10432:5432 -v path-to-data:/docker-entrypoint-initdb.d/taxi-heatmap/data/ pg_diffix_taxi_heatmap

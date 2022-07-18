@@ -10,7 +10,7 @@ body {
     width: 100%;
 }
 
-#map2 {
+#rawMap {
     position: absolute;
     top: 0;
     bottom: 0;
@@ -86,8 +86,8 @@ body {
     text-align: center;
     position: absolute;
     left: -60px;
-    bottom: 60px;
-    width: 150px;
+    bottom: 65px;
+    width: 155px;
     z-index: 1;
     transform: rotate(90deg);
 }
