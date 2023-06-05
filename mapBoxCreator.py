@@ -23,18 +23,16 @@ class MapBoxCreator:
         return polygonsFileRelativePath, centersFileRelativePath
 
     @staticmethod
-    def createMap(name, subtitle, buckets, lonlatRange, mapBoxPath=None, raw=False):
-        if mapBoxPath is None:
-            mapBoxPath = os.path.join('www', 'mapbox')
+    def createMap(name, buckets, lonlatRange, kind):
+        mapBoxPath = os.path.join('www', 'mapbox')
         polygonsFileRelativePath, centersFileRelativePath = MapBoxCreator._writeData(name, buckets, lonlatRange,
                                                                                      mapBoxPath)
         return {
             'name': name,
-            'subtitle': subtitle,
             'polygonsFileRelativePath': polygonsFileRelativePath,
             'centersFileRelativePath': centersFileRelativePath,
             'geoWidth': lonlatRange,
-            'isRaw': raw,
+            'kind': kind,
         }
 
     @staticmethod

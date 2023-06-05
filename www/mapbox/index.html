@@ -16,10 +16,13 @@
     <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css" type="text/css">
 </head>
 <body>
-<div id="comparison-container">
-    <div id="rawMap"></div>
-    <div id="map"></div>
-</div>
+    <div id="comparison-container2">
+        <div id="comparison-container1">
+            <div id="rawMap"></div>
+            <div id="baselineMap"></div>
+        </div>
+        <div id="syndiffixMap"></div>
+    </div>
 <div class="map-overlay-top">
     <div class="map-overlay-inner">
         <h2 id="title">NYC taxi trips</h2>
@@ -27,12 +30,21 @@
             <input type="radio" id="pdRadioFareAmounts" value="fareAmounts" name="pdRadio" checked="true">
             <label>Fare [$]</label>
             <br/>
-            <input type="radio" id="pdRadioTripSpeed" value="tripSpeed" name="pdRadio">
-            <label>Speed [mph]</label>
+            <input type="radio" id="pdRadioCounts" value="counts" name="pdRadio">
+            <label>Trip count</label>
         </p>
         <p>
             <label id="time" for="tSlider">Loading ...</label>
-            <input class="slider" id="tSlider" type="range" min="0" max="20" step="4" value="8"/>
+            <input class="slider" id="tSlider" type="range" min="0" max="20" step="4" value="8" list="tSliderMarkers"/>
+
+            <datalist id="tSliderMarkers">
+                <option value="0"></option>
+                <option value="4"></option>
+                <option value="8"></option>
+                <option value="12"></option>
+                <option value="16"></option>
+                <option value="20"></option>
+            </datalist>
         </p>
         <p>
             <table class="legend" id="legend"></table>
