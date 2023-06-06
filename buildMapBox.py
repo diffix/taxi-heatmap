@@ -42,7 +42,7 @@ docker run --rm --name pg_diffix_taxi_heatmap -e POSTGRES_PASSWORD=postgres -p 1
 9. Point browser to http://localhost:8000/www/mapbox/
 """
 
-title = "NYC taxi trips - Diffix for PostgreSQL"
+title = "NYC taxi trips - SynDiffix"
 diffix = MapBoxDiffixAccess()
 
 confLst = list()
