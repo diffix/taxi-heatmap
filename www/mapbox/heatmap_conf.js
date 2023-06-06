@@ -219,8 +219,9 @@ function initializeSwipers(compare1Object, compare2Object) {
     compareSwiper2.addEventListener("mousedown", onMouseTouchDown); 
     compareSwiper2.addEventListener("touchstart", onMouseTouchDown); 
 
-    const currentCompare2Position = compare2Object.currentPosition;
-    compare2Object.setSlider(currentCompare2Position + 150);
+    // Offset both sliders to the sides so they're not over each other.
+    compare1Object.setSlider(compare1Object.currentPosition * 2 / 3);
+    compare2Object.setSlider(compare2Object.currentPosition * 4 / 3);
 }
 
 function prepareMap() {
