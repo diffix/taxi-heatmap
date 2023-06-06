@@ -32,8 +32,8 @@ class MapBoxGeoJsonEncoder:
             'properties': {
                 'hourOfDay': bucket.hourOfDay,
                 'fare_amounts': bucket.fareAmounts,
-                'trip_speed': bucket.tripSpeed,
-                'lonlat_range': lonlatRange
+                'lonlat_range': lonlatRange,
+                'count': bucket.count
             }
         }
 

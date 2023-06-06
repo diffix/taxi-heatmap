@@ -1,38 +1,34 @@
-import copy
-
 from conf.diffixConfig import DiffixConfig
 from sql_adapter import SQLAdapter
 
-def _sql(lonlatRange, countThresh=0):
+def _sql(lonlatRange, kind='raw', baselineTable=None):
+    countThresh = 0 if kind in ['fir'] else 5
+
+    table = 'taxi' if kind in ['raw', 'fir'] else 'syndiffixtaxi_full' if kind == 'syndiffix' else baselineTable
+    
+    if kind == 'raw':
+        fare_per_sec = 'round((sum(fare_amount) / NULLIF(sum(trip_time_in_secs), 0) * 3600)::numeric, 0)::float8'
+    else:
+        fare_per_sec = '0'
+    
     return f"""
 SELECT {lonlatRange}::float as lonlatRange, *
                     FROM (SELECT
                             diffix.floor_by(pickup_latitude, {lonlatRange}) as lat,
                             diffix.floor_by(pickup_longitude, {lonlatRange}) as lon,
-                            substring(pickup_datetime, 12, 2) as hour_of_day,
+                            pickup_hour,
                             count(*),
-                            round((sum(fare_amount) / NULLIF(sum(trip_time_in_secs), 0) * 3600)::numeric, 0)::float8,
-                            round((sum(trip_distance) / NULLIF(sum(trip_time_in_secs), 0) * 3600)::numeric, 0)::float8,
+                            {fare_per_sec},
                             round(avg(fare_amount)::numeric, 0)::float8 as avg
-                            FROM taxi
+                            FROM {table}
                             GROUP BY 1, 2, 3) x
-WHERE hour_of_day::integer % 4 = 0 AND
-      count >= {countThresh} AND
+WHERE count >= {countThresh} AND
       avg IS NOT NULL;
 """
 
 def _lonlatSteps(start, parentRange, childRange):
     nSteps = round(parentRange / childRange)
     return [start + i * childRange for i in range(0, nSteps)]
-
-# Returns True if the parent bucket as a child with a different value.
-def _hasDistinctChild(parentBucket, childRange, bucketsByLatlon):
-    for childLat in _lonlatSteps(parentBucket.lat, parentBucket.lonlatRange, childRange):
-        for childLon in _lonlatSteps(parentBucket.lon, parentBucket.lonlatRange, childRange):
-            childValue = dict.get(bucketsByLatlon, (childLat, childLon, parentBucket.hourOfDay))
-            if childValue and childValue != parentBucket.fareAmounts:
-                return True
-    return False
 
 # Returns True if the parent bucket as any child at all.
 def _hasChild(parentBucket, childRange, bucketsByLatlon):
@@ -41,14 +37,6 @@ def _hasChild(parentBucket, childRange, bucketsByLatlon):
             if (childLat, childLon, parentBucket.hourOfDay) in bucketsByLatlon:
                 return True
     return False
-
-def _copyAndSetLonlat(bucket, lat, lon, lonlatRange):
-    parentBucketCopy = copy.deepcopy(bucket)
-    parentBucketCopy.lat = lat
-    parentBucketCopy.lon = lon
-    parentBucketCopy.count = None
-    parentBucketCopy.lonlatRange = lonlatRange
-    return parentBucketCopy
 
 
 def _putBucket(bucketsByLatlon, bucket):
@@ -67,8 +55,10 @@ class MapBoxDiffixAccess:
     def __init__(self):
         self._sqlAdapter = SQLAdapter(DiffixConfig.parameters)
 
-    def queryAndStackBuckets(self, lonlatRange, parentBuckets, raw=False):
-        sql = _sql(lonlatRange, countThresh=5 if raw else 0)
+    def queryAndStackBuckets(self, lonlatRange, parentBuckets, kind='raw', baselineTable=None):
+        raw = kind == 'raw'
+
+        sql = _sql(lonlatRange, kind=kind, baselineTable=baselineTable)
         if raw:
             result = self._sqlAdapter.queryRaw(sql)
         else:
@@ -77,7 +67,7 @@ class MapBoxDiffixAccess:
         buckets = []
         for row in result:
             buckets.append(_rowToBucket(row))
-        print(f"Loaded {len(buckets)} {'raw' if raw else 'anon'} buckets with range {lonlatRange}.")
+        print(f"Loaded {len(buckets)} buckets with range {lonlatRange} from {kind} data.")
 
         if parentBuckets:
             bucketsByLatlon = {}
@@ -87,7 +77,7 @@ class MapBoxDiffixAccess:
             for parentBucket in parentBuckets:
                 _appendParentBucket(parentBucket, lonlatRange, buckets, bucketsByLatlon)
 
-        print(f"Combined with parents: {len(buckets)} {'raw' if raw else 'anon'} buckets with range {lonlatRange}.")
+        print(f"Combined with parents: {len(buckets)} buckets with range {lonlatRange} from {kind} data.")
         self._sqlAdapter.disconnect()
         return buckets
 
@@ -98,8 +88,7 @@ def _rowToBucket(row):
     hourOfDay = int(row[3])
     count = row[4]
     hourlyRates = row[5]
-    tripSpeed = row[6]
-    fareAmounts = row[7]
+    fareAmounts = row[6]
     return MapBoxBucket(
         lat,
         lon,
@@ -107,20 +96,18 @@ def _rowToBucket(row):
         count=count,
         lonlatRange=lonlatRange,
         hourlyRates=hourlyRates,
-        tripSpeed=tripSpeed,
         fareAmounts=fareAmounts
     )
 
 
 class MapBoxBucket:
-    def __init__(self, lat, lon, hourOfDay=None, count=-1, lonlatRange=None, hourlyRates=None, tripSpeed=None, fareAmounts=None):
+    def __init__(self, lat, lon, hourOfDay=None, count=-1, lonlatRange=None, hourlyRates=None, fareAmounts=None):
         self.lat = lat
         self.lon = lon
         self.hourOfDay = hourOfDay
         self.count = count
         self.lonlatRange = lonlatRange
         self.hourlyRates = hourlyRates
-        self.tripSpeed = tripSpeed
         self.fareAmounts = fareAmounts
 
     def __str__(self):
@@ -129,5 +116,5 @@ class MapBoxBucket:
     __repr__ = __str__
 
     def listOfStrings(self):
-        return [f"{v}" for v in [self.lat, self.lon, self.hourOfDay, self.count, self.lonlatRange, self.hourlyRates, self.tripSpeed,
+        return [f"{v}" for v in [self.lat, self.lon, self.hourOfDay, self.count, self.lonlatRange, self.hourlyRates,
                                  self.fareAmounts] if v is not None]

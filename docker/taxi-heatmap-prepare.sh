@@ -29,3 +29,5 @@ sql <<-EOSQL
 EOSQL
 
 sql -f "/docker-entrypoint-initdb.d/taxi-heatmap/taxi-heatmap-settings.sql"
+
+sql -f "/docker-entrypoint-initdb.d/taxi-heatmap/taxi-heatmap-prepare.sql"

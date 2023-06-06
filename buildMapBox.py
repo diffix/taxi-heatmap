@@ -25,14 +25,21 @@ TlDr;
 -----
 1. Provision conf/diffixConfig.py and conf/mapBoxConfig.py
 2. Put `trip_data_1.csv` and `trip_fare_1.csv` from https://databank.illinois.edu/datasets/IDB-9610843 under `data` subdir in the repo root
-3. Build and run the pg_diffix docker image using: (modify your path to the `data` subdir)
+3. Build and run the **preparatory** pg_diffix docker image using: (modify your path to the `data` subdir)
+```
+make taxi-heatmap-prepare-image
+docker run --rm --name pg_diffix_taxi_heatmap_prepare -e POSTGRES_PASSWORD=postgres -p 10432:5432 -v path-to-data:/docker-entrypoint-initdb.d/taxi-heatmap/data/ pg_diffix_taxi_heatmap_prepare
+```
+4. This will produce more CSVs in the `data` subdir, which you should use to run the synthetic data routines. Stop the container.
+5. Put the synthetic data CSVs back in the `data` subdir (you can look up the expected names of the CSV files in `taxi-heatmap-data.sql`. Comment out the sources of data which you don't need)
+6. Again, build and run docker image:
 ```
 make taxi-heatmap-image
 docker run --rm --name pg_diffix_taxi_heatmap -e POSTGRES_PASSWORD=postgres -p 10432:5432 -v path-to-data:/docker-entrypoint-initdb.d/taxi-heatmap/data/ pg_diffix_taxi_heatmap
 ```
-2. Run this file from repository base (from the folder this file is in)
-3. Wait until it outputs "Serving http at port 8000"
-4. Point browser to http://localhost:8000/www/mapbox/
+7. Run this file (`buildMapBox.py`) from repository base (from the folder this file is in). If needed update the `baselineTable` to one of the tables containing the baseline data (e.g. `ctgantaxi`)
+8. Wait until it outputs "Serving http at port 8000"
+9. Point browser to http://localhost:8000/www/mapbox/
 """
 
 title = "NYC taxi trips - Diffix for PostgreSQL"
@@ -40,16 +47,15 @@ diffix = MapBoxDiffixAccess()
 
 confLst = list()
 geoWidths = [2**-8, 2**-9, 2**-10, 2**-11]
-parentAnonBuckets = None
-parentRawBuckets = None
-for geoWidth in geoWidths:
-    anonBuckets = diffix.queryAndStackBuckets(geoWidth, parentAnonBuckets)
-    parentAnonBuckets = anonBuckets
-    confLst.append(MapBoxCreator.createMap(f"taxi-heatmap-{geoWidth}", f"Lat/Lng width: {geoWidth}", anonBuckets, geoWidth))
+baselineTable = 'mostlyaitaxi'
 
-    rawBuckets = diffix.queryAndStackBuckets(geoWidth, parentRawBuckets, raw=True)
-    parentRawBuckets = rawBuckets
-    confLst.append(MapBoxCreator.createMap(f"taxi-heatmap-raw-{geoWidth}", f"Non-anonymized data", rawBuckets, geoWidth, raw=True))
+# 'fir' dropped from the list
+for kind in ['raw', 'syndiffix', 'baseline']:
+    parentBuckets = None
+    for geoWidth in geoWidths:
+        buckets = diffix.queryAndStackBuckets(geoWidth, parentBuckets, kind=kind, baselineTable=baselineTable)
+        parentBuckets = buckets
+        confLst.append(MapBoxCreator.createMap(f"taxi-heatmap-{kind}-{geoWidth}", buckets, geoWidth, kind))
 conf = MapBoxCreator.createMergedMap('taxi-heatmap', title, confLst)
 
 MapBoxCreator.serve()
