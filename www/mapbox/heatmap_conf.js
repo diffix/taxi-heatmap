@@ -74,6 +74,13 @@ const [colorHighest, colorAvg, colorLowest] = ['#fc8d59','#ffffbf','#91bfdb'];
 function initializePage(parsed) {
     conf = parsed;
     mapboxgl.accessToken = conf.accessToken;
+    mapboxgl.clearStorage(error => {
+        if (error) {
+            console.error("mapboxgl.clearStorage returned", error);
+        } else {
+            console.log("mapboxgl.clearStorage success");
+        }
+    });
     rawMap = new mapboxgl.Map({
         container: 'rawMap',
         style: mapboxStyleUrl,
