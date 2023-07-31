@@ -1,17 +1,5 @@
 -- This script loads CSV files used by the taxi-heatmap demo
 
--- The "default" syndiffix result, using column clustering derived by the algorithm
-CREATE TABLE syndiffixtaxi (
-  pickup_longitude DOUBLE PRECISION,
-  pickup_latitude DOUBLE PRECISION,
-  fare_amount DOUBLE PRECISION,
-  pickup_hour INTEGER
-);
-
-COPY syndiffixtaxi(pickup_longitude, pickup_latitude, fare_amount, pickup_hour)
-FROM '/docker-entrypoint-initdb.d/taxi-heatmap/data/trip_joined_4cols_aid.sharp.csv'
-(DELIMITER ',', FORMAT CSV, HEADER true);
-
 -- A 3-column cluster obtained cheaply by excluding the `fare_amount` column (fill with zeros)
 CREATE TABLE syndiffixtaxi_nofare (
   pickup_longitude DOUBLE PRECISION,
@@ -21,7 +9,7 @@ CREATE TABLE syndiffixtaxi_nofare (
 );
 
 COPY syndiffixtaxi_nofare(pickup_longitude, pickup_latitude, pickup_hour)
-FROM '/docker-entrypoint-initdb.d/taxi-heatmap/data/trip_joined_4cols_aid.lon-lat-hour.sharp.csv'
+FROM '/docker-entrypoint-initdb.d/taxi-heatmap/data/trip_joined_4cols_aid.sharp.cluster.nofare-12-10000-52ad546.csv'
 (DELIMITER ',', FORMAT CSV, HEADER true);
 
 UPDATE syndiffixtaxi_nofare
@@ -36,7 +24,7 @@ CREATE TABLE syndiffixtaxi_full (
 );
 
 COPY syndiffixtaxi_full(pickup_longitude, pickup_latitude, fare_amount, pickup_hour)
-FROM '/docker-entrypoint-initdb.d/taxi-heatmap/data/trip_joined_4cols_aid.sharp.cluster.12-10000.csv'
+FROM '/docker-entrypoint-initdb.d/taxi-heatmap/data/trip_joined_4cols_aid.sharp.cluster.custom_cluster-defaultdepth-1c66ebf.csv'
 (DELIMITER ',', FORMAT CSV, HEADER true);
 
 -- Obtained using TVAE from SDV.
