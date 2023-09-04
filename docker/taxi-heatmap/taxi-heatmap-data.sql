@@ -5,7 +5,7 @@ CREATE TABLE syndiffixtaxi_nofare (
   pickup_longitude DOUBLE PRECISION,
   pickup_latitude DOUBLE PRECISION,
   fare_amount DOUBLE PRECISION,
-  pickup_hour INTEGER
+  pickup_hour DOUBLE PRECISION
 );
 
 COPY syndiffixtaxi_nofare(pickup_longitude, pickup_latitude, pickup_hour)

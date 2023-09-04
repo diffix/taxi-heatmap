@@ -6,11 +6,6 @@ def _sql(lonlatRange, kind='raw', baselineTable=None):
 
     table = 'taxi' if kind in ['raw', 'fir'] else 'syndiffixtaxi_full' if kind == 'syndiffix' else baselineTable
     
-    if kind == 'raw':
-        fare_per_sec = 'round((sum(fare_amount) / NULLIF(sum(trip_time_in_secs), 0) * 3600)::numeric, 0)::float8'
-    else:
-        fare_per_sec = '0'
-    
     return f"""
 SELECT {lonlatRange}::float as lonlatRange, *
                     FROM (SELECT
@@ -18,7 +13,6 @@ SELECT {lonlatRange}::float as lonlatRange, *
                             diffix.floor_by(pickup_longitude, {lonlatRange}) as lon,
                             pickup_hour,
                             count(*),
-                            {fare_per_sec},
                             round(avg(fare_amount)::numeric, 0)::float8 as avg
                             FROM {table}
                             GROUP BY 1, 2, 3) x
@@ -87,27 +81,24 @@ def _rowToBucket(row):
     lon = row[2]
     hourOfDay = int(row[3])
     count = row[4]
-    hourlyRates = row[5]
-    fareAmounts = row[6]
+    fareAmounts = row[5]
     return MapBoxBucket(
         lat,
         lon,
         hourOfDay=hourOfDay,
         count=count,
         lonlatRange=lonlatRange,
-        hourlyRates=hourlyRates,
         fareAmounts=fareAmounts
     )
 
 
 class MapBoxBucket:
-    def __init__(self, lat, lon, hourOfDay=None, count=-1, lonlatRange=None, hourlyRates=None, fareAmounts=None):
+    def __init__(self, lat, lon, hourOfDay=None, count=-1, lonlatRange=None, fareAmounts=None):
         self.lat = lat
         self.lon = lon
         self.hourOfDay = hourOfDay
         self.count = count
         self.lonlatRange = lonlatRange
-        self.hourlyRates = hourlyRates
         self.fareAmounts = fareAmounts
 
     def __str__(self):
@@ -116,5 +107,5 @@ class MapBoxBucket:
     __repr__ = __str__
 
     def listOfStrings(self):
-        return [f"{v}" for v in [self.lat, self.lon, self.hourOfDay, self.count, self.lonlatRange, self.hourlyRates,
+        return [f"{v}" for v in [self.lat, self.lon, self.hourOfDay, self.count, self.lonlatRange,
                                  self.fareAmounts] if v is not None]
