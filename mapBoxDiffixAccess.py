@@ -1,6 +1,48 @@
 from conf.diffixConfig import DiffixConfig
 from sql_adapter import SQLAdapter
 
+
+class MapBoxDiffixAccess:
+    """
+    Manages querying for taxi data from the PostgreSQL database.
+
+    See `_sql` function below for the exact query used.
+    """
+    def __init__(self):
+        self._sqlAdapter = SQLAdapter(DiffixConfig.parameters)
+
+    def queryAndStackBuckets(self, lonlatRange, parentBuckets, kind='raw', baselineTable=None):
+        """
+        Fetches buckets of resolution `lonlatRange` from the PostgreSQL database. Later it combines them
+        with `parentBuckets` with the following rule:
+          - keep any `parentBucket` which doesn't contain any "child" bucket (of smaller `lonlatRange`) within
+        """
+        raw = kind == 'raw'
+
+        sql = _sql(lonlatRange, kind=kind, baselineTable=baselineTable)
+        if raw:
+            result = self._sqlAdapter.queryRaw(sql)
+        else:
+            result = self._sqlAdapter.queryDiffix(sql)
+
+        buckets = []
+        for row in result:
+            buckets.append(_rowToBucket(row))
+        print(f"Loaded {len(buckets)} buckets with range {lonlatRange} from {kind} data.")
+
+        if parentBuckets:
+            bucketsByLatlon = {}
+            for bucket in buckets:
+                _putBucket(bucketsByLatlon, bucket)
+
+            for parentBucket in parentBuckets:
+                _appendParentBucket(parentBucket, lonlatRange, buckets, bucketsByLatlon)
+
+        print(f"Combined with parents: {len(buckets)} buckets with range {lonlatRange} from {kind} data.")
+        self._sqlAdapter.disconnect()
+        return buckets
+    
+
 def _sql(lonlatRange, kind='raw', baselineTable=None):
     countThresh = 0 if kind in ['fir'] else 5
 
@@ -44,36 +86,6 @@ def _appendParentBucket(parentBucket, lonlatRange, buckets, bucketsByLatlon):
         buckets.append(parentBucket)
         _putBucket(bucketsByLatlon, parentBucket)
 
-
-class MapBoxDiffixAccess:
-    def __init__(self):
-        self._sqlAdapter = SQLAdapter(DiffixConfig.parameters)
-
-    def queryAndStackBuckets(self, lonlatRange, parentBuckets, kind='raw', baselineTable=None):
-        raw = kind == 'raw'
-
-        sql = _sql(lonlatRange, kind=kind, baselineTable=baselineTable)
-        if raw:
-            result = self._sqlAdapter.queryRaw(sql)
-        else:
-            result = self._sqlAdapter.queryDiffix(sql)
-
-        buckets = []
-        for row in result:
-            buckets.append(_rowToBucket(row))
-        print(f"Loaded {len(buckets)} buckets with range {lonlatRange} from {kind} data.")
-
-        if parentBuckets:
-            bucketsByLatlon = {}
-            for bucket in buckets:
-                _putBucket(bucketsByLatlon, bucket)
-
-            for parentBucket in parentBuckets:
-                _appendParentBucket(parentBucket, lonlatRange, buckets, bucketsByLatlon)
-
-        print(f"Combined with parents: {len(buckets)} buckets with range {lonlatRange} from {kind} data.")
-        self._sqlAdapter.disconnect()
-        return buckets
 
 def _rowToBucket(row):
     lonlatRange = row[0]

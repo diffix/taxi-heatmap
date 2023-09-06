@@ -1,0 +1,10 @@
+{
+  "InitialCluster": [0, 1, 3],
+  "DerivedClusters": [
+    {
+      "StitchColumns": [0, 1, 3],
+      "DerivedColumns": [2],
+      "StitchOwner": "Left"
+    }
+  ]
+}

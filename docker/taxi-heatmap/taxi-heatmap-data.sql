@@ -76,7 +76,7 @@ FROM '/docker-entrypoint-initdb.d/taxi-heatmap/data/trip_fare_1.csv'
 (DELIMITER ',', FORMAT CSV, HEADER true);
 
 -- The main `taxi` table.
--- NOTE: comment out if you want to load the `taxi` table from a file obtained with `taxi-heatmap-prepare.sql`.
+-- NOTE: comment out if you want to load the `taxi` table from a file obtained with `taxi-heatmap-prepare.sql` (see below).
 CREATE TABLE taxi AS (SELECT trip.*, fare.payment_type, fare.fare_amount, fare.surcharge, fare.mta_tax, fare.tip_amount, fare.tolls_amount,
                                      fare.total_amount,
                                      substring(trip.pickup_datetime, 12, 2)::integer as pickup_hour
@@ -96,7 +96,11 @@ CREATE TABLE taxi AS (SELECT trip.*, fare.payment_type, fare.fare_amount, fare.s
                                            substring(trip.pickup_datetime, 12, 2)::integer % 4 = 0);
 
 -- The main `taxi` table - load from file version.
--- NOTE: Uncomment if you want to load the `taxi` table from a file obtained with `taxi-heatmap-prepare.sql`.
+-- NOTE: Uncomment `CREATE TABLE taxi` and `COPY taxi` commands below if you want to load the `taxi` 
+--       table from a file obtained with `taxi-heatmap-prepare.sql`.
+--       Such table should be identical to the one obtained via `CREATE TABLE taxi AS (SELECT...` above,
+--       but is much faster to build.
+
 -- CREATE TABLE taxi (
 --   medallion TEXT,
 --   hack_license TEXT,

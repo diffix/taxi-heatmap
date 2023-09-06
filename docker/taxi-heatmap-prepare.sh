@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+# Almost identical to taxi-heatmap.sh, only the final extra step is added.
+
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
   CREATE DATABASE taxi_heatmap;
 EOSQL
