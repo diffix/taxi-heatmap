@@ -1,4 +1,15 @@
 class MapBoxGeoJsonEncoder:
+    """
+    Encodes taxi data bucket results as polygons and points for mapbox to render (GeoJSON).
+    """
+
+    @staticmethod
+    def encodeMany(buckets, lonlatRange, asPoints=False):
+        return {
+            "type": "FeatureCollection",
+            "features": [MapBoxGeoJsonEncoder._encodeSingle(b, lonlatRange, asPoints) for b in buckets]
+        }
+    
     @staticmethod
     def _encodeAsPolygon(lat, lon, lonlatRange):
         return {
@@ -22,7 +33,7 @@ class MapBoxGeoJsonEncoder:
         }
 
     @staticmethod
-    def encodeSingle(bucket, lonlatRange, asPoint=False):
+    def _encodeSingle(bucket, lonlatRange, asPoint=False):
         if bucket.lonlatRange:
             lonlatRange = bucket.lonlatRange
         return {
@@ -35,11 +46,4 @@ class MapBoxGeoJsonEncoder:
                 'lonlat_range': lonlatRange,
                 'count': bucket.count
             }
-        }
-
-    @staticmethod
-    def encodeMany(buckets, lonlatRange, asPoints=False):
-        return {
-            "type": "FeatureCollection",
-            "features": [MapBoxGeoJsonEncoder.encodeSingle(b, lonlatRange, asPoints) for b in buckets]
         }

@@ -11,7 +11,7 @@ To view:
 2. `python3 serveMapBox.py`
 3. Point browser to http://localhost:8000/www/mapbox
 
-To produce the bundle
+To produce the bundle:
 
 1. See `buildMapBox.py`
 2. Zip this file together with the `www` dir and send
